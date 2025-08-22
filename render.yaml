@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: blackrock-terminal-frontend
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: BACKEND_API_URL
+        value: https://black-rock-be.onrender.com/api/v1
+      - key: BACKEND_SOCKET_URL
+        value: https://black-rock-be.onrender.com
+    autoDeploy: true

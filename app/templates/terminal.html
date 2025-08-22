@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Terminal - Black Rock Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-900 to-indigo-900 min-h-screen text-white">
+    <!-- Terminal Header -->
+    <div class="bg-black bg-opacity-40 backdrop-blur-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white bg-opacity-20 p-3 rounded-xl">
+                        <i class="fas fa-rocket text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">BLACK ROCK TERMINAL</h1>
+                        <p class="text-blue-200">Professional Payment Processing System</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                        <span class="text-green-200 font-medium">SECURE</span>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <a href="/dashboard" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-home mr-2"></i>HOME
+                        </a>
+                        <a href="/transactions" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-history mr-2"></i>HISTORY
+                        </a>
+                        <a href="/payouts" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-wallet mr-2"></i>PAYOUTS
+                        </a>
+                        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-power-off mr-2"></i>LOGOUT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Interface -->
+    <div class="container mx-auto px-6 py-8">
+        <!-- Card Entry Section -->
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-8 py-6">
+                <h2 class="text-2xl font-bold">
+                    <i class="fas fa-credit-card mr-3"></i>CARD DETAILS ENTRY
+                </h2>
+                <p class="text-blue-100">Enter card information for secure processing</p>
+            </div>
+            
+            <div class="p-8">
+                <div class="space-y-8">
+                    <!-- Card Number -->
+                    <div>
+                        <label class="block text-lg font-bold text-gray-700 mb-3">
+                            <i class="fas fa-credit-card mr-2 text-blue-600"></i>CARD NUMBER *
+                        </label>
+                        <input type="text" id="cardNumber" placeholder="4242 4242 4242 4242" 
+                               class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl font-mono bg-white text-gray-900"
+                               required>
+                        <div class="mt-2 text-sm text-gray-600" id="cardType">Card Type: Unknown</div>
+                    </div>
+
+                    <!-- Row: Expiry, CVV, Amount, Currency -->
+                    <div class="grid grid-cols-4 gap-6">
+                        <div>
+                            <label class="block text-lg font-bold text-gray-700 mb-3">
+                                <i class="fas fa-calendar-alt mr-2 text-blue-600"></i>EXPIRY *
+                            </label>
+                            <input type="text" id="cardExpiry" placeholder="MM/YY" 
+                                   class="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl font-mono text-center bg-white text-gray-900"
+                                   required>
+                        </div>
+
+                        <div>
+                            <label class="block text-lg font-bold text-gray-700 mb-3">
+                                <i class="fas fa-lock mr-2 text-blue-600"></i>CVV *
+                            </label>
+                            <input type="password" id="cardCvv" placeholder="***" 
+                                   class="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl font-mono text-center bg-white text-gray-900"
+                                   required maxlength="4">
+                        </div>
+
+                        <div>
+                            <label class="block text-lg font-bold text-gray-700 mb-3">
+                                <i class="fas fa-dollar-sign mr-2 text-green-600"></i>AMOUNT *
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-4 text-gray-500 font-bold">$</span>
+                                <input type="number" id="amount" placeholder="0.00" step="0.01" min="0.01" 
+                                       class="w-full pl-8 pr-4 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-xl font-bold bg-white text-gray-900"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-lg font-bold text-gray-700 mb-3">
+                                <i class="fas fa-globe mr-2 text-green-600"></i>CURRENCY *
+                            </label>
+                            <select id="currency" 
+                                    class="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-lg bg-white text-gray-900"
+                                    required>
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Cardholder Name -->
+                    <div>
+                        <label class="block text-lg font-bold text-gray-700 mb-3">
+                            <i class="fas fa-user mr-2 text-blue-600"></i>CARDHOLDER NAME *
+                        </label>
+                        <input type="text" id="cardHolder" placeholder="JOHN DOE" 
+                               class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl uppercase bg-white text-gray-900"
+                               required>
+                    </div>
+
+                    <!-- Protocol Selection -->
+                    <div>
+                        <label class="block text-lg font-bold text-gray-700 mb-3">
+                            <i class="fas fa-shield-alt mr-2 text-purple-600"></i>PAYMENT PROTOCOL *
+                        </label>
+                        <select id="protocol" 
+                                class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg bg-white text-gray-900"
+                                required>
+                            <option value="">Select Payment Protocol</option>
+                            <option value="POS Terminal -101.1 (4-digit approval)">POS Terminal -101.1 (4-digit approval)</option>
+                            <option value="POS Terminal -101.4 (6-digit approval)">POS Terminal -101.4 (6-digit approval)</option>
+                            <option value="POS Terminal -101.6 (Pre-authorization)">POS Terminal -101.6 (Pre-authorization)</option>
+                            <option value="POS Terminal -101.7 (4-digit approval)">POS Terminal -101.7 (4-digit approval)</option>
+                            <option value="POS Terminal -101.8 (PIN-LESS transaction)">POS Terminal -101.8 (PIN-LESS transaction)</option>
+                            <option value="POS Terminal -201.1 (6-digit approval)">POS Terminal -201.1 (6-digit approval)</option>
+                            <option value="POS Terminal -201.3 (6-digit approval)">POS Terminal -201.3 (6-digit approval)</option>
+                            <option value="POS Terminal -201.5 (6-digit approval)">POS Terminal -201.5 (6-digit approval)</option>
+                        </select>
+                        <div class="mt-2 text-sm text-gray-600" id="protocolInfo">Select protocol to enable authorization code entry</div>
+                    </div>
+
+                    <!-- Authorization Code Section (COMPLETELY FIXED) -->
+                    <div class="bg-yellow-50 p-8 rounded-2xl border-2 border-yellow-300">
+                        <h3 class="text-xl font-bold text-yellow-800 mb-6">
+                            <i class="fas fa-key mr-3 text-yellow-600"></i>AUTHORIZATION CODE ENTRY
+                        </h3>
+                        
+                        <div class="grid grid-cols-2 gap-8">
+                            <div>
+                                <label class="block text-lg font-bold text-yellow-800 mb-3">
+                                    AUTHORIZATION CODE *
+                                </label>
+                                <input type="number" id="authCode" placeholder="000000" 
+                                       class="w-full px-8 py-6 border-4 border-yellow-400 rounded-xl text-center text-3xl font-mono bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                                       required maxlength="6"
+                                       style="letter-spacing: 12px;">
+                                <div class="mt-4 text-base text-yellow-700" id="authHelp">Select payment protocol first</div>
+                            </div>
+                            
+                            <div class="bg-yellow-100 p-6 rounded-xl border border-yellow-300">
+                                <h4 class="text-lg font-bold text-yellow-800 mb-4">
+                                    <i class="fas fa-info-circle mr-2"></i>Authorization Requirements
+                                </h4>
+                                <div class="text-sm text-yellow-700 space-y-3">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-arrow-right mr-3 text-yellow-600"></i>
+                                        <span>Select a payment protocol first</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-shield-alt mr-3 text-yellow-600"></i>
+                                        <span>Code length depends on selected protocol</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-sort-numeric-up mr-3 text-yellow-600"></i>
+                                        <span>Numeric digits only (0-9)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="grid grid-cols-2 gap-6">
+                        <button type="button" onclick="clearAllFields()" 
+                                class="w-full px-8 py-4 rounded-xl text-xl font-bold bg-gray-500 hover:bg-gray-600 text-white transition-all">
+                            <i class="fas fa-times mr-3"></i>CLEAR ALL FIELDS
+                        </button>
+                        
+                        <button type="button" id="processBtn" onclick="handleProcessPayment()" 
+                                class="w-full px-8 py-4 rounded-xl text-xl font-bold cursor-not-allowed transition-all"
+                                style="background-color: #9ca3af; color: white;" disabled>
+                            <i class="fas fa-credit-card mr-3"></i>
+                            <span id="processBtnText">COMPLETE ALL FIELDS</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing & Results -->
+        <div class="grid grid-cols-4 gap-6 mb-8">
+            <!-- Processing Steps -->
+            <div class="bg-white rounded-xl shadow-xl">
+                <div class="bg-purple-600 text-white px-4 py-3">
+                    <h3 class="text-lg font-bold">🔄 PROCESSING</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center" id="step-validation">
+                            <div class="w-4 h-4 bg-gray-300 rounded-full mr-4"></div>
+                            <span class="text-gray-600">Card Validation</span>
+                        </div>
+                        <div class="flex items-center" id="step-authorization">
+                            <div class="w-4 h-4 bg-gray-300 rounded-full mr-4"></div>
+                            <span class="text-gray-600">Authorization</span>
+                        </div>
+                        <div class="flex items-center" id="step-mti">
+                            <div class="w-4 h-4 bg-gray-300 rounded-full mr-4"></div>
+                            <span class="text-gray-600">MTI Acknowledgement</span>
+                        </div>
+                        <div class="flex items-center" id="step-payout">
+                            <div class="w-4 h-4 bg-gray-300 rounded-full mr-4"></div>
+                            <span class="text-gray-600">Payout Processing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payout Information -->
+            <div class="bg-white rounded-xl shadow-xl">
+                <div class="bg-green-600 text-white px-4 py-3">
+                    <h3 class="text-lg font-bold">💰 PAYOUT</h3>
+                </div>
+                <div class="p-6" id="payoutInfo">
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Method:</span>
+                            <span class="font-bold text-blue-600">BANK</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Account:</span>
+                            <span class="font-mono">****1234</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Status:</span>
+                            <span class="font-bold text-green-600">AUTO</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Updates -->
+            <div class="bg-white rounded-xl shadow-xl">
+                <div class="bg-red-600 text-white px-4 py-3">
+                    <h3 class="text-lg font-bold">📡 UPDATES</h3>
+                </div>
+                <div class="p-6">
+                    <div id="liveUpdates" class="text-sm space-y-2 h-32 overflow-y-auto">
+                        <p class="text-gray-500">Monitoring...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="bg-white rounded-xl shadow-xl">
+                <div class="bg-gray-600 text-white px-4 py-3">
+                    <h3 class="text-lg font-bold">🚀 MENU</h3>
+                </div>
+                <div class="p-6 space-y-3">
+                    <a href="/dashboard" class="block w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 rounded text-sm font-bold text-center">
+                        DASHBOARD
+                    </a>
+                    <a href="/transactions" class="block w-full bg-purple-500 hover:bg-purple-600 text-white py-2 px-3 rounded text-sm font-bold text-center">
+                        HISTORY
+                    </a>
+                    <a href="/payouts" class="block w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-3 rounded text-sm font-bold text-center">
+                        PAYOUTS
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Result -->
+        <div id="successResult" class="hidden bg-white rounded-xl shadow-2xl">
+            <div class="bg-green-600 text-white px-8 py-6">
+                <h3 class="text-2xl font-bold">✅ PAYMENT APPROVED</h3>
+                <p class="text-green-100">Transaction processed successfully</p>
+            </div>
+            <div class="p-8">
+                <div class="grid grid-cols-4 gap-6 mb-6">
+                    <div class="text-center">
+                        <span class="text-gray-600">Transaction ID:</span>
+                        <div id="successTxId" class="font-mono font-bold text-lg text-green-700"></div>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-gray-600">Amount:</span>
+                        <div id="successAmount" class="font-bold text-green-600 text-xl"></div>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-gray-600">Card:</span>
+                        <div id="successCard" class="font-mono"></div>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-gray-600">Auth Code:</span>
+                        <div id="successAuth" class="font-mono font-bold text-blue-600"></div>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button onclick="printReceipt()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-bold">
+                        <i class="fas fa-print mr-2"></i>PRINT RECEIPT
+                    </button>
+                    <button onclick="newTransaction()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-bold">
+                        <i class="fas fa-plus mr-2"></i>NEW TRANSACTION
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PROTOCOLS = {
+            "POS Terminal -101.1 (4-digit approval)": 4,
+            "POS Terminal -101.4 (6-digit approval)": 6,
+            "POS Terminal -101.6 (Pre-authorization)": 6,
+            "POS Terminal -101.7 (4-digit approval)": 4,
+            "POS Terminal -101.8 (PIN-LESS transaction)": 4,
+            "POS Terminal -201.1 (6-digit approval)": 6,
+            "POS Terminal -201.3 (6-digit approval)": 6,
+            "POS Terminal -201.5 (6-digit approval)": 6
+        };
+
+        let currentTransaction = null;
+        let isFormValid = false;
+        let socket = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupInputs();
+            initializeSocket();
+            loadPayoutInfo();
+            document.getElementById('cardNumber').focus();
+        });
+
+        function setupInputs() {
+            // CARD NUMBER: Add spaces every 4 digits
+            document.getElementById('cardNumber').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 16) value = value.substring(0, 16);
+                
+                // Add spaces every 4 digits: 4242 4242 4242 4242
+                e.target.value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+                
+                validateCard(value);
+                validateForm();
+            });
+
+            // EXPIRY: MM/YY format
+            document.getElementById('cardExpiry').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 4) value = value.substring(0, 4);
+                
+                // Add slash: MM/YY
+                if (value.length >= 2) {
+                    e.target.value = value.substring(0, 2) + '/' + value.substring(2);
+                } else {
+                    e.target.value = value;
+                }
+                validateForm();
+            });
+
+            // CVV: Numeric only
+            document.getElementById('cardCvv').addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+                validateForm();
+            });
+
+            // Cardholder Name: Letters and spaces, uppercase
+            document.getElementById('cardHolder').addEventListener('input', function(e) {
+                e.target.value = e.target.value.toUpperCase().replace(/[^A-Z\s]/g, '');
+                validateForm();
+            });
+
+            // Amount
+            document.getElementById('amount').addEventListener('input', validateForm);
+
+            // Currency
+            document.getElementById('currency').addEventListener('change', validateForm);
+
+            // Protocol: Enable auth code (FIXED)
+            document.getElementById('protocol').addEventListener('change', function(e) {
+                const protocol = e.target.value;
+                const authInput = document.getElementById('authCode');
+                const authHelp = document.getElementById('authHelp');
+                const protocolInfo = document.getElementById('protocolInfo');
+                
+                if (protocol && PROTOCOLS[protocol]) {
+                    const digits = PROTOCOLS[protocol];
+                    
+                    // ENABLE AUTH INPUT
+                    authInput.disabled = false;
+                    authInput.removeAttribute('disabled');
+                    authInput.removeAttribute('readonly');
+                    authInput.type = 'number';
+                    authInput.maxLength = digits;
+                    authInput.placeholder = '0'.repeat(digits);
+                    authInput.value = '';
+                    authInput.readOnly = false;
+                    
+                    // Force enable styles
+                    authInput.style.backgroundColor = 'white';
+                    authInput.style.color = '#1f2937';
+                    authInput.style.borderColor = '#fbbf24';
+                    authInput.style.cursor = 'text';
+                    authInput.style.pointerEvents = 'auto';
+                    authInput.style.opacity = '1';
+                    
+                    authHelp.textContent = `✅ Enter exactly ${digits} numeric digits`;
+                    authHelp.style.color = '#059669';
+                    authHelp.style.fontWeight = 'bold';
+                    
+                    protocolInfo.textContent = `✅ ${protocol} - ${digits} digit authorization required`;
+                    protocolInfo.style.color = '#059669';
+                    protocolInfo.style.fontWeight = 'bold';
+                    
+                    // Force focus
+                    setTimeout(() => {
+                        authInput.focus();
+                        authInput.click();
+                    }, 200);
+                    
+                } else {
+                    authInput.disabled = true;
+                    authInput.value = '';
+                    authInput.type = 'text';
+                    authInput.placeholder = 'Enter code';
+                    
+                    authHelp.textContent = 'Select payment protocol first';
+                    authHelp.style.color = '#6b7280';
+                    authHelp.style.fontWeight = 'normal';
+                    
+                    protocolInfo.textContent = 'Select protocol to enable authorization code entry';
+                    protocolInfo.style.color = '#6b7280';
+                    protocolInfo.style.fontWeight = 'normal';
+                }
+                validateForm();
+            });
+
+            // AUTH CODE: Input handling (FIXED)
+            document.getElementById('authCode').addEventListener('input', function(e) {
+                if (e.target.disabled) return;
+                
+                let value = e.target.value.replace(/\D/g, '');
+                e.target.value = value;
+                
+                const protocol = document.getElementById('protocol').value;
+                if (protocol && PROTOCOLS[protocol]) {
+                    const required = PROTOCOLS[protocol];
+                    const authHelp = document.getElementById('authHelp');
+                    
+                    if (value.length === required) {
+                        authHelp.textContent = `✅ Valid ${required}-digit authorization code entered`;
+                        authHelp.style.color = '#059669';
+                        authHelp.style.fontWeight = 'bold';
+                    } else if (value.length > 0) {
+                        authHelp.textContent = `⏳ Enter ${required - value.length} more digits (${value.length}/${required})`;
+                        authHelp.style.color = '#d97706';
+                        authHelp.style.fontWeight = 'bold';
+                    }
+                }
+                validateForm();
+            });
+        }
+
+        function validateCard(cardNumber) {
+            const cardTypeEl = document.getElementById('cardType');
+            
+            let cardType = 'Unknown';
+            if (cardNumber.startsWith('4')) cardType = 'VISA';
+            else if (cardNumber.startsWith('411111')) cardType = 'VISA TEST';
+            else if (cardNumber.startsWith('5') || cardNumber.startsWith('2')) cardType = 'MASTERCARD';
+            else if (cardNumber.startsWith('34') || cardNumber.startsWith('37')) cardType = 'AMEX';
+            
+            if (cardNumber.length >= 13 && luhnCheck(cardNumber)) {
+                cardTypeEl.textContent = `✅ ${cardType} - Valid Card`;
+                cardTypeEl.style.color = '#059669';
+                cardTypeEl.style.fontWeight = 'bold';
+            } else if (cardNumber.length > 0) {
+                cardTypeEl.textContent = `⏳ ${cardType} - Incomplete`;
+                cardTypeEl.style.color = '#d97706';
+            } else {
+                cardTypeEl.textContent = 'Card Type: Unknown';
+                cardTypeEl.style.color = '#6b7280';
+            }
+        }
+
+        function validateForm() {
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const expiry = document.getElementById('cardExpiry').value;
+            const cvv = document.getElementById('cardCvv').value;
+            const name = document.getElementById('cardHolder').value;
+            const amount = document.getElementById('amount').value;
+            const currency = document.getElementById('currency').value;
+            const protocol = document.getElementById('protocol').value;
+            const authCode = document.getElementById('authCode').value;
+            
+            const isCardValid = cardNumber.length >= 13 && luhnCheck(cardNumber);
+            const isExpiryValid = expiry.length === 5 && expiry.includes('/');
+            const isCVVValid = cvv.length >= 3;
+            const isNameValid = name.length >= 2;
+            const isAmountValid = parseFloat(amount) > 0;
+            const isCurrencyValid = currency !== '';
+            const isProtocolValid = protocol !== '';
+            const isAuthValid = protocol && PROTOCOLS[protocol] && authCode.length === PROTOCOLS[protocol];
+            
+            isFormValid = isCardValid && isExpiryValid && isCVVValid && isNameValid && isAmountValid && isCurrencyValid && isProtocolValid && isAuthValid;
+            
+            const processBtn = document.getElementById('processBtn');
+            const btnText = document.getElementById('processBtnText');
+            
+            if (isFormValid) {
+                processBtn.disabled = false;
+                processBtn.style.backgroundColor = '#10b981';
+                processBtn.style.cursor = 'pointer';
+                processBtn.style.transform = 'scale(1.02)';
+                processBtn.style.boxShadow = '0 8px 25px rgba(16, 185, 129, 0.3)';
+                btnText.textContent = '🚀 PROCESS PAYMENT NOW';
+            } else {
+                processBtn.disabled = true;
+                processBtn.style.backgroundColor = '#9ca3af';
+                processBtn.style.cursor = 'not-allowed';
+                processBtn.style.transform = 'scale(1)';
+                processBtn.style.boxShadow = 'none';
+                
+                if (!isProtocolValid) {
+                    btnText.textContent = '⚠️ SELECT PAYMENT PROTOCOL';
+                } else if (!isAuthValid && protocol) {
+                    btnText.textContent = `⚠️ ENTER ${PROTOCOLS[protocol]}-DIGIT AUTH CODE`;
+                } else if (!isCurrencyValid) {
+                    btnText.textContent = '⚠️ SELECT CURRENCY';
+                } else {
+                    btnText.textContent = '⚠️ COMPLETE ALL FIELDS';
+                }
+            }
+        }
+
+        function handleProcessPayment() {
+            if (!isFormValid) {
+                alert('Please complete all required fields before processing payment');
+                return;
+            }
+            
+            const formData = {
+                card_number: document.getElementById('cardNumber').value,
+                card_expiry: document.getElementById('cardExpiry').value,
+                card_cvv: document.getElementById('cardCvv').value,
+                card_holder: document.getElementById('cardHolder').value,
+                amount: document.getElementById('amount').value,
+                currency: document.getElementById('currency').value,
+                protocol: document.getElementById('protocol').value,
+                auth_code: document.getElementById('authCode').value
+            };
+
+            processTransaction(formData);
+        }
+
+        async function processTransaction(formData) {
+            try {
+                // Disable process button during processing
+                const processBtn = document.getElementById('processBtn');
+                processBtn.disabled = true;
+                processBtn.style.backgroundColor = '#9ca3af';
+                document.getElementById('processBtnText').textContent = '🔄 PROCESSING...';
+
+                // Processing animation
+                updateStep('validation', 'processing');
+                await delay(600);
+                updateStep('validation', 'completed');
+                
+                updateStep('authorization', 'processing');
+                await delay(800);
+                updateStep('authorization', 'completed');
+                
+                updateStep('mti', 'processing');
+                await delay(600);
+                updateStep('mti', 'completed');
+                
+                updateStep('payout', 'processing');
+                await delay(400);
+                updateStep('payout', 'completed');
+
+                // Send to backend
+                const response = await fetch('/api/proxy/process', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess(result);
+                } else {
+                    alert('Payment failed: ' + result.message);
+                    // Re-enable button
+                    processBtn.disabled = false;
+                    validateForm();
+                }
+            } catch (error) {
+                alert('Error processing payment: ' + error.message);
+                // Re-enable button
+                document.getElementById('processBtn').disabled = false;
+                validateForm();
+            }
+        }
+
+        function showSuccess(result) {
+            document.getElementById('successResult').classList.remove('hidden');
+            
+            document.getElementById('successTxId').textContent = result.transaction_id;
+            document.getElementById('successAmount').textContent = `$${result.amount} ${document.getElementById('currency').value}`;
+            document.getElementById('successCard').textContent = document.getElementById('cardNumber').value;
+            document.getElementById('successAuth').textContent = result.auth_code;
+            
+            currentTransaction = result;
+            addUpdate(`✅ Payment approved: $${result.amount}`);
+            addUpdate(`🔄 MTI acknowledged: ${result.transaction_id}`);
+            addUpdate(`💰 Payout triggered automatically`);
+        }
+
+        function updateStep(step, status) {
+            const stepEl = document.getElementById(`step-${step}`);
+            const dot = stepEl.querySelector('.w-4');
+            const text = stepEl.querySelector('span');
+            
+            if (status === 'processing') {
+                dot.className = 'w-4 h-4 bg-blue-500 rounded-full mr-4 animate-pulse';
+                text.className = 'text-blue-600 font-bold';
+            } else if (status === 'completed') {
+                dot.className = 'w-4 h-4 bg-green-500 rounded-full mr-4';
+                text.className = 'text-green-600 font-bold';
+            }
+        }
+
+        function addUpdate(message) {
+            const container = document.getElementById('liveUpdates');
+            if (container.innerHTML.includes('Monitoring')) {
+                container.innerHTML = '';
+            }
+            
+            const div = document.createElement('div');
+            div.className = 'text-sm p-2 bg-gray-100 rounded text-gray-800';
+            div.innerHTML = `<div class="font-bold">${message}</div><div class="text-xs text-gray-500">${new Date().toLocaleTimeString()}</div>`;
+            container.insertBefore(div, container.firstChild);
+        }
+
+        function initializeSocket() {
+            socket = io('https://black-rock-be.onrender.com', {
+                auth: { token: localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') }
+            });
+
+            socket.on('connect', function() {
+                addUpdate('✅ Connected to payment gateway');
+            });
+
+            socket.on('disconnect', function() {
+                addUpdate('❌ Disconnected from payment gateway');
+            });
+
+            socket.on('mti_acknowledgement', function(data) {
+                addUpdate(`🔄 MTI ${data.mti} acknowledged for ${data.transaction_id}`);
+            });
+
+            socket.on('payout_notification', function(data) {
+                addUpdate(`💰 Payout ${data.payout_status}: $${data.amount} ${data.currency}`);
+            });
+
+            socket.on('transaction_update', function(data) {
+                addUpdate(`📊 Transaction ${data.transaction_id} updated: ${data.status}`);
+            });
+        }
+
+        async function loadPayoutInfo() {
+            try {
+                const response = await fetch('/api/proxy/profile');
+                if (response.ok) {
+                    const data = await response.json();
+                    updatePayoutInfo(data.user);
+                }
+            } catch (error) {
+                console.error('Error loading payout info:', error);
+                addUpdate('⚠️ Error loading payout configuration');
+            }
+        }
+
+        function updatePayoutInfo(user) {
+            const container = document.getElementById('payoutInfo');
+            
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Method:</span>
+                        <span class="font-bold text-blue-600">${user.default_payout_method ? user.default_payout_method.toUpperCase() : 'BANK'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Account:</span>
+                        <span class="font-mono">${user.bank_account_number ? '****' + user.bank_account_number.slice(-4) : '****1234'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Name:</span>
+                        <span class="text-sm">${user.bank_account_name || user.company_name || 'Business Account'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Status:</span>
+                        <span class="font-bold text-green-600">AUTO</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div class="flex items-center justify-center">
+                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                        <span class="text-xs font-bold text-green-700">🤖 FULLY AUTOMATED</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearAllFields() {
+            // Reset all form fields
+            document.getElementById('cardNumber').value = '';
+            document.getElementById('cardExpiry').value = '';
+            document.getElementById('cardCvv').value = '';
+            document.getElementById('cardHolder').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('currency').value = 'USD';
+            document.getElementById('protocol').value = '';
+            document.getElementById('authCode').value = '';
+            
+            // Reset auth code
+            const authInput = document.getElementById('authCode');
+            authInput.disabled = true;
+            authInput.type = 'text';
+            authInput.placeholder = 'Enter code';
+            
+            // Reset messages
+            document.getElementById('cardType').textContent = 'Card Type: Unknown';
+            document.getElementById('cardType').style.color = '#6b7280';
+            document.getElementById('authHelp').textContent = 'Select payment protocol first';
+            document.getElementById('authHelp').style.color = '#6b7280';
+            document.getElementById('protocolInfo').textContent = 'Select protocol to enable authorization code entry';
+            document.getElementById('protocolInfo').style.color = '#6b7280';
+            
+            // Hide results
+            document.getElementById('successResult').classList.add('hidden');
+            
+            // Reset processing steps
+            ['validation', 'authorization', 'mti', 'payout'].forEach(step => {
+                const stepEl = document.getElementById(`step-${step}`);
+                stepEl.querySelector('.w-4').className = 'w-4 h-4 bg-gray-300 rounded-full mr-4';
+                stepEl.querySelector('span').className = 'text-gray-600';
+            });
+            
+            isFormValid = false;
+            validateForm();
+            document.getElementById('cardNumber').focus();
+        }
+
+        function newTransaction() {
+            clearAllFields();
+        }
+
+        function printReceipt() {
+            if (!currentTransaction) return;
+            
+            const content = `
+                <div style="font-family: monospace; padding: 20px; text-align: center; line-height: 1.6;">
+                    <h2 style="font-size: 20px; margin-bottom: 10px;">BLACK ROCK TERMINAL</h2>
+                    <h3 style="font-size: 16px; margin-bottom: 15px;">PAYMENT RECEIPT</h3>
+                    <hr style="border: 1px solid #000; margin: 15px 0;">
+                    
+                    <div style="text-align: left; margin: 20px 0; font-size: 14px;">
+                        <p style="margin: 5px 0;"><strong>Transaction ID:</strong> ${currentTransaction.transaction_id}</p>
+                        <p style="margin: 5px 0;"><strong>Date/Time:</strong> ${new Date().toLocaleString()}</p>
+                        <p style="margin: 5px 0;"><strong>Amount:</strong> ${document.getElementById('successAmount').textContent}</p>
+                        <p style="margin: 5px 0;"><strong>Card Number:</strong> ${document.getElementById('cardNumber').value}</p>
+                        <p style="margin: 5px 0;"><strong>Expiry Date:</strong> ${document.getElementById('cardExpiry').value}</p>
+                        <p style="margin: 5px 0;"><strong>Cardholder:</strong> ${document.getElementById('cardHolder').value}</p>
+                        <p style="margin: 5px 0;"><strong>Authorization Code:</strong> ${currentTransaction.auth_code}</p>
+                        <p style="margin: 5px 0;"><strong>Protocol:</strong> ${document.getElementById('protocol').value}</p>
+                        <p style="margin: 5px 0;"><strong>Status:</strong> APPROVED</p>
+                    </div>
+                    
+                    <hr style="border: 1px solid #000; margin: 15px 0;">
+                    <p style="margin-top: 15px; font-size: 16px;">Thank you for your business!</p>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Keep this receipt for your records</p>
+                </div>
+            `;
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Payment Receipt</title>
+                    <style>body { margin: 0; padding: 0; }</style>
+                </head>
+                <body>
+                    ${content}
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            window.onafterprint = function() {
+                                window.close();
+                            }
+                        }
+                    </script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        function luhnCheck(cardNumber) {
+            let sum = 0;
+            let shouldDouble = false;
+            
+            for (let i = cardNumber.length - 1; i >= 0; i--) {
+                let digit = parseInt(cardNumber[i]);
+                
+                if (shouldDouble) {
+                    if ((digit *= 2) > 9) digit -= 9;
+                }
+                
+                sum += digit;
+                shouldDouble = !shouldDouble;
+            }
+            
+            return (sum % 10) === 0;
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/logout';
+            }
+        }
+
+        // Keyboard navigation
+        document.getElementById('cardNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.replace(/\s/g, '').length >= 13) {
+                document.getElementById('cardExpiry').focus();
+            }
+        });
+
+        document.getElementById('cardExpiry').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.length === 5) {
+                document.getElementById('cardCvv').focus();
+            }
+        });
+
+        document.getElementById('cardCvv').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.length >= 3) {
+                document.getElementById('amount').focus();
+            }
+        });
+
+        document.getElementById('amount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && parseFloat(this.value) > 0) {
+                document.getElementById('cardHolder').focus();
+            }
+        });
+
+        document.getElementById('cardHolder').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.length >= 2) {
+                document.getElementById('currency').focus();
+            }
+        });
+
+        document.getElementById('currency').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('protocol').focus();
+            }
+        });
+
+        document.getElementById('authCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && isFormValid) {
+                handleProcessPayment();
+            }
+        });
+    </script>
+</body>
+</html>

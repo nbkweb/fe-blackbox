@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Black Rock Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .login-bg {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            min-height: 100vh;
+        }
+        .card-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="login-bg flex items-center justify-center py-12 px-4">
+    <div class="max-w-lg w-full space-y-8">
+        <!-- Header -->
+        <div class="text-center">
+            <div class="mx-auto w-24 h-24 bg-blue-600 rounded-3xl flex items-center justify-center mb-6 shadow-2xl">
+                <i class="fas fa-rocket text-3xl text-white"></i>
+            </div>
+            <h1 class="text-4xl font-extrabold text-white mb-2">
+                BLACK ROCK TERMINAL
+            </h1>
+            <p class="text-lg text-blue-300">Secure Payment Processing System</p>
+            <p class="text-sm text-gray-400 mt-2">Production Terminal v1.0</p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="card-glass rounded-3xl shadow-2xl p-8">
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-200 mb-3">Username</label>
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-4 top-4 text-gray-400"></i>
+                        <input type="text" id="username" required 
+                               class="w-full pl-12 pr-4 py-4 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                               placeholder="Enter your username">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-200 mb-3">Password</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-4 top-4 text-gray-400"></i>
+                        <input type="password" id="password" required 
+                               class="w-full pl-12 pr-4 py-4 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                               placeholder="Enter your password">
+                    </div>
+                </div>
+
+                <!-- 2FA Section -->
+                <div id="2faSection" class="hidden">
+                    <label class="block text-sm font-medium text-gray-200 mb-3">2FA Code</label>
+                    <div class="relative">
+                        <i class="fas fa-mobile-alt absolute left-4 top-4 text-gray-400"></i>
+                        <input type="text" id="totpCode" 
+                               class="w-full pl-12 pr-4 py-4 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg text-center"
+                               placeholder="000000" maxlength="6" pattern="\d{6}">
+                    </div>
+                    <div class="flex items-center mt-3 p-3 bg-blue-900 bg-opacity-50 rounded-lg">
+                        <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                        <p class="text-xs text-blue-300">
+                            Open your authenticator app to get the 6-digit verification code
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <button type="button" onclick="showPasswordReset()" class="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+                        <i class="fas fa-key mr-1"></i>Forgot password?
+                    </button>
+                </div>
+
+                <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 px-6 rounded-xl transition-colors font-bold text-lg shadow-lg">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    <span id="loginBtnText">SECURE LOGIN</span>
+                </button>
+            </form>
+
+            <!-- Password Reset Form -->
+            <div id="passwordResetForm" class="hidden mt-8 pt-8 border-t border-gray-700">
+                <h3 class="text-xl font-semibold text-white mb-6 text-center">
+                    <i class="fas fa-key mr-2"></i>Password Recovery
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-200 mb-3">Email Address</label>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute left-4 top-4 text-gray-400"></i>
+                            <input type="email" id="resetEmail" 
+                                   class="w-full pl-12 pr-4 py-4 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="Enter your registered email">
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="sendResetLink()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-xl transition-colors font-semibold">
+                            <i class="fas fa-envelope mr-2"></i>Send Reset Link
+                        </button>
+                        <button type="button" onclick="hidePasswordReset()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-xl transition-colors font-semibold">
+                            <i class="fas fa-arrow-left mr-2"></i>Back
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="statusMessage" class="hidden p-6 rounded-2xl text-center transition-all shadow-lg"></div>
+    </div>
+
+    <script>
+        let requires2FA = false;
+        let tempToken = null;
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loginBtn = document.getElementById('loginBtn');
+            const loginBtnText = document.getElementById('loginBtnText');
+            
+            loginBtn.disabled = true;
+            loginBtnText.textContent = 'AUTHENTICATING...';
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const totpCode = document.getElementById('totpCode').value;
+
+            try {
+                if (!requires2FA) {
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.requires_2fa) {
+                        requires2FA = true;
+                        tempToken = data.temp_token;
+                        document.getElementById('2faSection').classList.remove('hidden');
+                        document.getElementById('totpCode').focus();
+                        showStatus('2FA verification required', 'info');
+                        loginBtnText.textContent = 'VERIFY 2FA CODE';
+                    } else if (data.success) {
+                        showStatus('Login successful! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = data.redirect || '/dashboard';
+                        }, 1500);
+                    } else {
+                        showStatus(data.error || 'Invalid credentials', 'error');
+                    }
+                } else {
+                    if (!totpCode || totpCode.length !== 6) {
+                        showStatus('Please enter a valid 6-digit 2FA code', 'error');
+                        return;
+                    }
+
+                    const response = await fetch('/verify-2fa', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ temp_token: tempToken, totp_code: totpCode })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showStatus('Authentication successful! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = data.redirect || '/dashboard';
+                        }, 1500);
+                    } else {
+                        showStatus(data.error || 'Invalid 2FA code', 'error');
+                        document.getElementById('totpCode').value = '';
+                        document.getElementById('totpCode').focus();
+                    }
+                }
+            } catch (error) {
+                showStatus('Network error. Please check connection.', 'error');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtnText.textContent = requires2FA ? 'VERIFY 2FA CODE' : 'SECURE LOGIN';
+            }
+        });
+
+        function showPasswordReset() {
+            document.getElementById('passwordResetForm').classList.remove('hidden');
+            document.getElementById('resetEmail').focus();
+        }
+
+        function hidePasswordReset() {
+            document.getElementById('passwordResetForm').classList.add('hidden');
+            document.getElementById('resetEmail').value = '';
+        }
+
+        async function sendResetLink() {
+            const email = document.getElementById('resetEmail').value;
+            
+            if (!email || !isValidEmail(email)) {
+                showStatus('Please enter a valid email address', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/proxy/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                showStatus('Password reset instructions sent to your email', 'success');
+                hidePasswordReset();
+            } catch (error) {
+                showStatus('Failed to send reset link', 'error');
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `p-6 rounded-2xl text-center transition-all shadow-lg ${
+                type === 'error' ? 'bg-red-600 text-white' :
+                type === 'success' ? 'bg-green-600 text-white' :
+                type === 'info' ? 'bg-blue-600 text-white' :
+                'bg-yellow-600 text-white'
+            }`;
+            statusDiv.classList.remove('hidden');
+            
+            if (type !== 'error') {
+                setTimeout(() => statusDiv.classList.add('hidden'), 4000);
+            }
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').focus();
+        });
+
+        document.getElementById('totpCode').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 6);
+        });
+    </script>
+</body>
+</html>

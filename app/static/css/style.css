@@ -1,0 +1,372 @@
+# MISSING FRONTEND FILES FOR BLACK ROCK TERMINAL
+
+## 1. app/static/css/style.css
+```css
+/* Black Rock Terminal - Custom Styles */
+
+/* Terminal Theme */
+.terminal-bg {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+}
+
+.card-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Card Input Styles */
+.card-input {
+    background-color: white !important;
+    color: #1f2937 !important;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s ease;
+}
+
+.card-input:focus {
+    background-color: white !important;
+    color: #1f2937 !important;
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+}
+
+.card-input::placeholder {
+    color: #9ca3af !important;
+}
+
+/* Authorization Code Styles */
+.auth-input {
+    background-color: white !important;
+    color: #1f2937 !important;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 8px;
+    text-align: center;
+    font-size: 24px;
+    border: 4px solid #fbbf24;
+}
+
+.auth-input:focus {
+    background-color: white !important;
+    color: #1f2937 !important;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25);
+}
+
+.auth-input:disabled {
+    background-color: #f3f4f6 !important;
+    color: #9ca3af !important;
+    border-color: #d1d5db !important;
+    cursor: not-allowed;
+}
+
+/* Validation Styles */
+.card-valid {
+    border-color: #10b981 !important;
+    background-color: #f0fdf4 !important;
+}
+
+.card-invalid {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+
+/* Button Styles */
+.btn-process {
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+.btn-enabled {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    cursor: pointer;
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.btn-enabled:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: scale(1.05);
+}
+
+.btn-disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Animation Styles */
+.payout-indicator {
+    animation: payoutPulse 2s infinite;
+}
+
+@keyframes payoutPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.processing-step {
+    transition: all 0.3s ease;
+}
+
+.notification-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Print Styles */
+.print-only {
+    display: none;
+}
+
+@media print {
+    .no-print { 
+        display: none !important; 
+    }
+    .print-only { 
+        display: block !important; 
+    }
+    body { 
+        background: white !important; 
+        color: black !important; 
+        margin: 0;
+        padding: 0;
+    }
+    .card-glass,
+    .terminal-bg {
+        background: white !important;
+    }
+}
+
+/* Real-time Update Styles */
+.live-update {
+    animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+    0% { 
+        transform: translateX(100%); 
+        opacity: 0; 
+    }
+    100% { 
+        transform: translateX(0); 
+        opacity: 1; 
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .horizontal-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .protocol-auth-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .card-input,
+    .auth-input {
+        font-size: 16px;
+        padding: 12px 16px;
+    }
+    
+    .auth-input {
+        letter-spacing: 4px;
+    }
+}
+
+/* Terminal Status Indicators */
+.status-online {
+    background-color: #10b981;
+    animation: pulse 2s infinite;
+}
+
+.status-offline {
+    background-color: #ef4444;
+}
+
+.status-processing {
+    background-color: #3b82f6;
+    animation: pulse 1s infinite;
+}
+
+/* Card Type Indicators */
+.card-visa {
+    color: #1e40af;
+}
+
+.card-mastercard {
+    color: #dc2626;
+}
+
+.card-amex {
+    color: #059669;
+}
+
+.card-discover {
+    color: #ea580c;
+}
+
+/* Form Focus Effects */
+.form-section:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading Animations */
+.loading-spinner {
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success/Error Animations */
+.success-glow {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+    animation: successPulse 0.5s ease-in-out;
+}
+
+.error-glow {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+    animation: errorShake 0.5s ease-in-out;
+}
+
+@keyframes successPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Protocol Selection Styles */
+.protocol-selected {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    transform: scale(1.02);
+}
+
+/* Transaction Status Badges */
+.status-approved {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.status-declined {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fed7aa;
+}
+
+/* Payout Status Badges */
+.payout-completed {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.payout-processing {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.payout-failed {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.payout-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* Scrollbar Styles */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Utility Classes */
+.text-shadow {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.border-glow {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .auto-dark {
+        background-color: #1f2937;
+        color: #f9fafb;
+    }
+}
+
+/* Print Receipt Styles */
+.receipt-content {
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+    padding: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.receipt-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.receipt-detail {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+}
+
+.receipt-footer {
+    text-align: center;
+    border-top: 1px solid #000;
+    padding-top: 10px;
+    margin-top: 15px;
+}

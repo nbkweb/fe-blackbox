@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payout Settings - Black Rock Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        .payout-indicator {
+            animation: payoutPulse 2s infinite;
+        }
+        @keyframes payoutPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b-4 border-yellow-600">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-yellow-600 p-3 rounded-xl">
+                        <i class="fas fa-wallet text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">BLACK ROCK TERMINAL</h1>
+                        <p class="text-sm text-gray-600">Automated Payout Configuration & Monitoring</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="payout-indicator w-3 h-3 bg-green-400 rounded-full"></div>
+                        <span class="text-green-600 font-medium">AUTO-PROCESSING</span>
+                    </div>
+                    
+                    <a href="/dashboard" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold">
+                        <i class="fas fa-home mr-2"></i>DASHBOARD
+                    </a>
+                    <a href="/terminal" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold">
+                        <i class="fas fa-credit-card mr-2"></i>TERMINAL
+                    </a>
+                    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold">
+                        <i class="fas fa-power-off mr-2"></i>LOGOUT
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Payout Configuration Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Automated Payout Status -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+            <div class="bg-yellow-600 text-white px-8 py-6">
+                <h2 class="text-2xl font-bold">
+                    <i class="fas fa-robot mr-2"></i>AUTOMATED PAYOUT CONFIGURATION
+                </h2>
+                <p class="text-yellow-100">Backend-configured payout destinations (View Only)</p>
+            </div>
+            
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Bank Configuration Display -->
+                    <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+                        <h3 class="font-bold text-blue-800 mb-4">
+                            <i class="fas fa-university mr-2"></i>Bank Configuration (Backend Managed)
+                        </h3>
+                        <div id="bankConfig" class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Account Name:</span>
+                                <span class="font-bold">Loading...</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Account Number:</span>
+                                <span class="font-mono font-bold">Loading...</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Transfer Method:</span>
+                                <span class="font-bold text-blue-600">Instant ACH</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Status:</span>
+                                <span class="font-bold text-green-600">✅ ACTIVE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Crypto Configuration Display -->
+                    <div class="bg-orange-50 rounded-xl p-6 border border-orange-200">
+                        <h3 class="font-bold text-orange-800 mb-4">
+                            <i class="fab fa-bitcoin mr-2"></i>Crypto Configuration (Backend Managed)
+                        </h3>
+                        <div id="cryptoConfig" class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Network:</span>
+                                <span class="font-mono font-bold">Loading...</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Wallet:</span>
+                                <span class="font-mono text-xs">Loading...</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Processing:</span>
+                                <span class="font-bold text-orange-600">Real-time Blockchain</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Status:</span>
+                                <span class="font-bold text-green-600">✅ CONFIGURED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Automated Processing Features -->
+                <div class="mt-8 bg-green-50 rounded-xl p-6 border border-green-200">
+                    <h3 class="font-bold text-green-800 mb-4">
+                        <i class="fas fa-cogs mr-2"></i>FULLY AUTOMATED PROCESSING
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <i class="fas fa-check text-green-600 mr-3"></i>
+                                <span>Real-time MTI acknowledgements</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-check text-green-600 mr-3"></i>
+                                <span>Automatic payout triggers</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <i class="fas fa-check text-green-600 mr-3"></i>
+                                <span>Instant settlement processing</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-check text-green-600 mr-3"></i>
+                                <span>No manual intervention required</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-white rounded-lg border">
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-green-700">⚡ AVERAGE PROCESSING TIME: 2.3 SECONDS</div>
+                            <div class="text-sm text-green-600">From authorization to payout completion</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Payout Monitoring -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="bg-red-600 text-white px-8 py-6">
+                <h2 class="text-2xl font-bold">
+                    <i class="fas fa-satellite-dish mr-2"></i>REAL-TIME PAYOUT MONITORING
+                </h2>
+                <p class="text-red-100">Live tracking of automatic payout processing</p>
+            </div>
+            
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Pending Payouts -->
+                    <div class="bg-yellow-50 rounded-xl p-6 border border-yellow-200">
+                        <h4 class="font-bold text-yellow-800 mb-4">
+                            <i class="fas fa-clock mr-2"></i>Pending Payouts
+                        </h4>
+                        <div id="pendingPayouts" class="space-y-3 max-h-48 overflow-y-auto">
+                            <div class="text-center py-6">
+                                <i class="fas fa-hourglass-half text-yellow-400 text-xl"></i>
+                                <p class="text-sm text-yellow-600 mt-2">Monitoring pending payouts...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Processing Payouts -->
+                    <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+                        <h4 class="font-bold text-blue-800 mb-4">
+                            <i class="fas fa-cog fa-spin mr-2"></i>Processing Payouts
+                        </h4>
+                        <div id="processingPayouts" class="space-y-3 max-h-48 overflow-y-auto">
+                            <div class="text-center py-6">
+                                <i class="fas fa-cogs text-blue-400 text-xl"></i>
+                                <p class="text-sm text-blue-600 mt-2">Monitoring active processing...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Completed Payouts -->
+                    <div class="bg-green-50 rounded-xl p-6 border border-green-200">
+                        <h4 class="font-bold text-green-800 mb-4">
+                            <i class="fas fa-check-circle mr-2"></i>Completed Payouts
+                        </h4>
+                        <div id="completedPayouts" class="space-y-3 max-h-48 overflow-y-auto">
+                            <div class="text-center py-6">
+                                <i class="fas fa-check-double text-green-400 text-xl"></i>
+                                <p class="text-sm text-green-600 mt-2">Recent completions will appear here...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let socket = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPayoutConfiguration();
+            initializeSocket();
+        });
+
+        function initializeSocket() {
+            socket = io('https://black-rock-be.onrender.com', {
+                auth: { token: localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') }
+            });
+
+            socket.on('connect', function() {
+                console.log('Connected to payout monitoring');
+            });
+
+            socket.on('payout_notification', function(data) {
+                handlePayoutUpdate(data);
+            });
+
+            socket.on('mti_acknowledgement', function(data) {
+                // When MTI is acknowledged, payout is triggered
+                addPayoutToPending(data);
+            });
+        }
+
+        async function loadPayoutConfiguration() {
+            try {
+                const response = await fetch('/api/proxy/profile');
+                if (response.ok) {
+                    const data = await response.json();
+                    updatePayoutConfiguration(data.user);
+                }
+            } catch (error) {
+                console.error('Error loading payout configuration:', error);
+            }
+        }
+
+        function updatePayoutConfiguration(user) {
+            // Update Bank Configuration
+            const bankContainer = document.getElementById('bankConfig');
+            bankContainer.innerHTML = `
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Account Name:</span>
+                    <span class="font-bold">${user.bank_account_name || user.company_name || 'Business Account'}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Account Number:</span>
+                    <span class="font-mono font-bold">${user.bank_account_number ? '****' + user.bank_account_number.slice(-4) : '****1234'}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Transfer Method:</span>
+                    <span class="font-bold text-blue-600">Instant ACH</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Status:</span>
+                    <span class="font-bold ${user.default_payout_method === 'bank' ? 'text-green-600' : 'text-gray-600'}">${user.default_payout_method === 'bank' ? '✅ ACTIVE' : '⚪ INACTIVE'}</span>
+                </div>
+            `;
+
+            // Update Crypto Configuration
+            const cryptoContainer = document.getElementById('cryptoConfig');
+            cryptoContainer.innerHTML = `
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Network:</span>
+                    <span class="font-mono font-bold">${user.crypto_wallet_network || 'ETH Mainnet'}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Wallet:</span>
+                    <span class="font-mono text-xs">${user.crypto_wallet_address ? user.crypto_wallet_address.substring(0, 8) + '...' + user.crypto_wallet_address.slice(-8) : '0x1234...5678'}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Processing:</span>
+                    <span class="font-bold text-orange-600">Real-time Blockchain</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Status:</span>
+                    <span class="font-bold ${user.default_payout_method === 'crypto' ? 'text-green-600' : 'text-gray-600'}">${user.default_payout_method === 'crypto' ? '✅ ACTIVE' : '⚪ CONFIGURED'}</span>
+                </div>
+            `;
+        }
+
+        function handlePayoutUpdate(data) {
+            const status = data.payout_status.toLowerCase();
+            
+            if (status === 'pending' || status === 'queued') {
+                addToPendingPayouts(data);
+            } else if (status === 'processing') {
+                moveToProcessingPayouts(data);
+            } else if (status === 'completed') {
+                moveToCompletedPayouts(data);
+            }
+        }
+
+        function addToPendingPayouts(data) {
+            const container = document.getElementById('pendingPayouts');
+            
+            if (container.innerHTML.includes('Monitoring pending')) {
+                container.innerHTML = '';
+            }
+            
+            const payoutDiv = document.createElement('div');
+            payoutDiv.className = 'bg-white p-3 rounded-lg border border-yellow-200';
+            payoutDiv.id = `payout-${data.transaction_id}`;
+            payoutDiv.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-mono text-sm font-bold">${data.transaction_id}</div>
+                        <div class="text-xs text-gray-600">$${data.amount} ${data.currency}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs font-bold text-yellow-600">${data.payout_status.toUpperCase()}</div>
+                        <div class="text-xs text-gray-500">${data.payout_method.toUpperCase()}</div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertBefore(payoutDiv, container.firstChild);
+            
+            while (container.children.length > 5) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        function moveToProcessingPayouts(data) {
+            // Remove from pending
+            const pendingElement = document.getElementById(`payout-${data.transaction_id}`);
+            if (pendingElement) {
+                pendingElement.remove();
+            }
+            
+            // Add to processing
+            const container = document.getElementById('processingPayouts');
+            
+            if (container.innerHTML.includes('Monitoring active')) {
+                container.innerHTML = '';
+            }
+            
+            const payoutDiv = document.createElement('div');
+            payoutDiv.className = 'bg-white p-3 rounded-lg border border-blue-200';
+            payoutDiv.id = `processing-${data.transaction_id}`;
+            payoutDiv.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-mono text-sm font-bold">${data.transaction_id}</div>
+                        <div class="text-xs text-gray-600">$${data.amount} ${data.currency}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs font-bold text-blue-600">
+                            <i class="fas fa-spinner fa-spin mr-1"></i>PROCESSING
+                        </div>
+                        <div class="text-xs text-gray-500">${data.payout_method.toUpperCase()}</div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertBefore(payoutDiv, container.firstChild);
+            
+            while (container.children.length > 5) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        function moveToCompletedPayouts(data) {
+            // Remove from processing
+            const processingElement = document.getElementById(`processing-${data.transaction_id}`);
+            if (processingElement) {
+                processingElement.remove();
+            }
+            
+            // Add to completed
+            const container = document.getElementById('completedPayouts');
+            
+            if (container.innerHTML.includes('Recent completions')) {
+                container.innerHTML = '';
+            }
+            
+            const payoutDiv = document.createElement('div');
+            payoutDiv.className = 'bg-white p-3 rounded-lg border border-green-200';
+            payoutDiv.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-mono text-sm font-bold">${data.transaction_id}</div>
+                        <div class="text-xs text-gray-600">$${data.amount} ${data.currency}</div>
+                        <div class="text-xs text-green-600 font-mono">${data.payout_reference ? data.payout_reference.substring(0, 12) + '...' : ''}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs font-bold text-green-600">
+                            <i class="fas fa-check-circle mr-1"></i>COMPLETED
+                        </div>
+                        <div class="text-xs text-gray-500">${new Date().toLocaleTimeString()}</div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertBefore(payoutDiv, container.firstChild);
+            
+            while (container.children.length > 5) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/logout';
+            }
+        }
+    </script>
+</body>
+</html>
