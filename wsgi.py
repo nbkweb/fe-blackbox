@@ -8,6 +8,15 @@ print("Current directory contents:", os.listdir('.'))
 print("Environment:", os.getenv('FLASK_ENV', 'default'))
 
 try:
+    print("Attempting to import config module...")
+    from config import config
+    print("Config imported successfully")
+    
+    print("Attempting to import routes module...")
+    import routes
+    print("Routes imported successfully")
+    print("Routes attributes:", [attr for attr in dir(routes) if not attr.startswith('_')])
+    
     print("Attempting to import app module...")
     import app
     print("App module imported successfully")
@@ -22,7 +31,7 @@ try:
         raise ImportError("create_app function not found")
         
 except Exception as e:
-    print(f"Error importing app module: {e}")
+    print(f"Error during import: {e}")
     import traceback
     traceback.print_exc()
     raise
