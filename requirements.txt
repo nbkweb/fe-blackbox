@@ -1,6 +1,6 @@
 
-## 1. requirements.txt
-```txt
+
+
 Flask==2.3.3
 Flask-WTF==1.1.1
 python-dotenv==1.0.0
