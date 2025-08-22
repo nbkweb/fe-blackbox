@@ -6,11 +6,13 @@ csrf = CSRFProtect()
 
 def create_app(config_name='default'):
     # Point Flask to look for templates and static files in the app folder
-    app = Flask(__name__, template_folder='app/templates', static_folder='app/static') 
-                template_folder='app/templates',
-                static_folder='app/static')
-    app.config.from_object(config[config_name])
+    app = Flask(
+        __name__,
+        template_folder='app/templates',
+        static_folder='app/static'
+    )
     
+    app.config.from_object(config[config_name])
     csrf.init_app(app)
     
     # Import from the app folder
@@ -18,3 +20,4 @@ def create_app(config_name='default'):
     app.register_blueprint(main_blueprint)
     
     return app
+
