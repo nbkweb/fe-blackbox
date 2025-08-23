@@ -1,12 +1,27 @@
-import os
 from flask import Flask
+from .models import db
+from flask_login import LoginManager
 
-# Define absolute paths for templates and static folders
-template_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'templates')
-static_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static')
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object('config.Config')
 
-# Create the Flask app with explicit folders
-app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+    db.init_app(app)
 
-# Import routes (make sure you have routes.py in the app folder)
-from app import routes
+    # Register blueprints
+    from .auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint)
+
+    from .main import main as main_blueprint
+    app.register_blueprint(main_blueprint)
+
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'  # Important for @login_required
+    login_manager.init_app(app)
+
+    from .models import Merchant
+    @login_manager.user_loader
+    def load_user(user_id):
+        return Merchant.query.get(int(user_id))
+
+    return app
